@@ -21,12 +21,12 @@ export const Timer: React.FC<TimerProps> = ({
   const isWarning = timeLeft <= 20 && timeLeft > 10;
   const isCritical = timeLeft <= 10 && timeLeft > 0;
 
-  // Sound ticking for final 10 seconds
+  // Countdown ticking audio effect on every second tick
   useEffect(() => {
-    if (isRunning && isCritical) {
-      audioManager.playTick(soundEnabled, 1.2);
+    if (isRunning && timeLeft >= 0) {
+      audioManager.playTick(soundEnabled, timeLeft);
     }
-  }, [timeLeft, isRunning, isCritical, soundEnabled]);
+  }, [timeLeft, isRunning, soundEnabled]);
 
   // Color classes
   let statusTextStyle = 'text-slate-800';
