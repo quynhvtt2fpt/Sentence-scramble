@@ -1,0 +1,6 @@
+{
+  "name": "Sentence Scramble",
+  "description": "An interactive classroom English sentence unscrambling game with animated floating word cards, timer, sentence bank, and answer reveal for English teachers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
