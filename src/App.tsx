@@ -172,19 +172,25 @@ export default function App() {
     setSettings((prev) => ({ ...prev, difficulty }));
   };
 
-  const handleAddSentence = (text: string, category?: string) => {
-    const newTokens = tokenizeSentence(text);
-    const newItem: SentenceItem = {
-      id: `sent-${Date.now()}`,
-      originalSentence: text,
-      tokens: newTokens,
-      category: category || 'Custom',
-      createdAt: Date.now(),
-    };
+  const handleAddSentences = (texts: string[], category?: string) => {
+    if (!texts || texts.length === 0) return;
 
-    const updated = [newItem, ...sentences];
+    const baseTime = Date.now();
+    const newItems: SentenceItem[] = texts.map((text, idx) => ({
+      id: `sent-${baseTime}-${idx}`,
+      originalSentence: text,
+      tokens: tokenizeSentence(text),
+      category: category || 'Custom',
+      createdAt: baseTime + idx,
+    }));
+
+    const updated = [...newItems, ...sentences];
     setSentences(updated);
-    setCurrentIndex(0); // Select newly created sentence immediately
+    setCurrentIndex(0); // Select the first newly created sentence immediately
+  };
+
+  const handleAddSentence = (text: string, category?: string) => {
+    handleAddSentences([text], category);
   };
 
   const handleDeleteSentence = (id: string) => {
@@ -331,6 +337,7 @@ export default function App() {
       <AddSentenceModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+        onAddSentences={handleAddSentences}
         onAddSentence={handleAddSentence}
       />
 

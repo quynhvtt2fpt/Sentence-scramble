@@ -5,7 +5,8 @@ import { tokenizeSentence } from '../utils/tokenization';
 interface AddSentenceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddSentence: (sentenceText: string, category?: string) => void;
+  onAddSentence?: (sentenceText: string, category?: string) => void;
+  onAddSentences?: (sentences: string[], category?: string) => void;
 }
 
 const PRESET_IDEAS = [
@@ -20,6 +21,7 @@ export const AddSentenceModal: React.FC<AddSentenceModalProps> = ({
   isOpen,
   onClose,
   onAddSentence,
+  onAddSentences,
 }) => {
   const [inputText, setInputText] = useState('');
   const [category, setCategory] = useState('Custom');
@@ -27,29 +29,43 @@ export const AddSentenceModal: React.FC<AddSentenceModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Calculate valid lines dynamically
+  const rawLines = inputText
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const validLines = rawLines.filter((l) => tokenizeSentence(l).length >= 2);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = inputText.trim();
 
-    if (!trimmed) {
-      setErrorMsg('Please enter a valid English sentence.');
+    if (rawLines.length === 0) {
+      setErrorMsg('Please enter at least one sentence.');
       return;
     }
 
-    const tokens = tokenizeSentence(trimmed);
-    if (tokens.length < 2) {
-      setErrorMsg('Sentence should contain at least 2 words.');
+    if (validLines.length === 0) {
+      setErrorMsg('Each sentence should contain at least 2 words.');
       return;
     }
 
-    onAddSentence(trimmed, category);
+    if (onAddSentences) {
+      onAddSentences(validLines, category);
+    } else if (onAddSentence) {
+      validLines.forEach((sent) => onAddSentence(sent, category));
+    }
+
     setInputText('');
     setErrorMsg('');
     onClose();
   };
 
   const handleSelectPreset = (preset: string) => {
-    setInputText(preset);
+    setInputText((prev) => {
+      const trimmed = prev.trim();
+      return trimmed ? `${trimmed}\n${preset}` : preset;
+    });
     setErrorMsg('');
   };
 
@@ -64,10 +80,10 @@ export const AddSentenceModal: React.FC<AddSentenceModalProps> = ({
             </div>
             <div>
               <h2 className="text-2xl font-black font-['Fredoka',sans-serif] text-slate-800">
-                Add a Sentence
+                Add Sentences
               </h2>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Type an English sentence for your students to scramble.
+              <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                💡 Mỗi dòng là 1 câu tách biệt (One sentence per line)
               </p>
             </div>
           </div>
@@ -82,20 +98,29 @@ export const AddSentenceModal: React.FC<AddSentenceModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div>
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
-              English Sentence
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                English Sentences
+              </label>
+              {validLines.length > 0 && (
+                <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+                  {validLines.length} {validLines.length === 1 ? 'sentence' : 'sentences'} detected
+                </span>
+              )}
+            </div>
+
             <textarea
-              rows={3}
+              rows={5}
               value={inputText}
               onChange={(e) => {
                 setInputText(e.target.value);
                 if (errorMsg) setErrorMsg('');
               }}
-              placeholder="Type or paste an English sentence here... e.g. The students are studying English in the classroom."
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-indigo-600 focus:bg-white rounded-2xl text-slate-800 text-lg placeholder-slate-400 transition-all resize-none font-medium outline-none"
+              placeholder="Nhập hoặc dán các câu vào đây (mỗi câu một dòng)...&#10;&#10;Ví dụ:&#10;She goes to school by bus every day.&#10;Where did you buy those beautiful shoes?&#10;They have been playing tennis for two hours."
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-indigo-600 focus:bg-white rounded-2xl text-slate-800 text-base placeholder-slate-400 transition-all resize-none font-medium outline-none leading-relaxed"
               autoFocus
             />
+
             {errorMsg && (
               <p className="mt-2 text-sm text-rose-600 font-bold flex items-center gap-1">
                 ⚠️ {errorMsg}
