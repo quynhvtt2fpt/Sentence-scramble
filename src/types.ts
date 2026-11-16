@@ -2,7 +2,7 @@ export type GameState = 'IDLE' | 'READY' | 'PLAYING' | 'PAUSED' | 'TIME_UP' | 'A
 
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
 
-export type TimerOption = 30 | 60 | 120 | number;
+export type TimerOption = 30 | 45 | 60 | 120 | number;
 
 export type CardSize = 'NORMAL' | 'LARGE' | 'HUGE';
 

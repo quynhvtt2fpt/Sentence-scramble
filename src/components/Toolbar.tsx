@@ -49,7 +49,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <Clock className="w-3 h-3 text-indigo-600" /> Time Limit
           </span>
           <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-            {[30, 60, 120].map((seconds) => (
+            {[30, 45, 60, 120].map((seconds) => (
               <button
                 key={seconds}
                 onClick={() => onSelectTimer(seconds)}
