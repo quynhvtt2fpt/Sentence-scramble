@@ -201,6 +201,21 @@ export default function App() {
     }
   };
 
+  const handleEditSentence = (id: string, newText: string, newCategory?: string) => {
+    setSentences((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              originalSentence: newText,
+              tokens: tokenizeSentence(newText),
+              category: newCategory,
+            }
+          : item
+      )
+    );
+  };
+
   const handleResetToDefaults = () => {
     setSentences(INITIAL_SENTENCES);
     setCurrentIndex(0);
@@ -351,6 +366,7 @@ export default function App() {
           const idx = sentences.findIndex((s) => s.id === item.id);
           if (idx !== -1) setCurrentIndex(idx);
         }}
+        onEditSentence={handleEditSentence}
         onDeleteSentence={handleDeleteSentence}
         onResetToDefaults={handleResetToDefaults}
       />
